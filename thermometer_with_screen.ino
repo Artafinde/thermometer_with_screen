@@ -21,10 +21,13 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 //Other variables
 int loop_period = 2000;  //seconds
 int b_led_pin=3;
-int g_led_pin=4;
+int g_led_pin=6;
 int r_led_pin=5;
 int temp_low = 34;
 int temp_high = 40;
+int b_duty_cycle = 20;
+int g_duty_cycle = 100;
+int r_duty_cycle = 20;
 
 void setup(void) 
 { 
@@ -46,6 +49,15 @@ void setup(void)
  pinMode(g_led_pin, OUTPUT);  //green
  pinMode(b_led_pin, OUTPUT);  //blue
  pinMode(r_led_pin, OUTPUT);  //red
+
+ //Flash all three LEDs
+ analogWrite(b_led_pin, b_duty_cycle);
+ analogWrite(g_led_pin, g_duty_cycle);
+ analogWrite(r_led_pin, r_duty_cycle);
+ delay(500);
+ digitalWrite(b_led_pin, LOW);
+ digitalWrite(g_led_pin, LOW);
+ digitalWrite(r_led_pin, LOW);
 } 
 
 void loop(void) 
@@ -68,21 +80,21 @@ void loop(void)
  //Set LED colur according to temperature
  if(sensors.getTempCByIndex(0)<temp_low)
  {
-  digitalWrite(b_led_pin, HIGH);
+  analogWrite(b_led_pin, b_duty_cycle);
   digitalWrite(g_led_pin, LOW);
   digitalWrite(r_led_pin, LOW);
  }
  else if (sensors.getTempCByIndex(0)<temp_high)
  {
   digitalWrite(b_led_pin, LOW);
-  digitalWrite(g_led_pin, HIGH);
+  analogWrite(g_led_pin, g_duty_cycle);
   digitalWrite(r_led_pin, LOW);
  }
  else
  {
   digitalWrite(b_led_pin, LOW);
   digitalWrite(g_led_pin, LOW);
-  digitalWrite(r_led_pin, HIGH);
+  analogWrite(r_led_pin, r_duty_cycle);
  }
 
  //Blink builtin LED
