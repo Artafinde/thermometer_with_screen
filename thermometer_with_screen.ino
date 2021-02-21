@@ -18,8 +18,13 @@ DallasTemperature sensors(&oneWire);
 //Declare a LiquidCrystal_I2C object
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 
+//Other variables
 int loop_period = 2000;  //seconds
-int led_pin=13;
+int b_led_pin=3;
+int g_led_pin=4;
+int r_led_pin=5;
+int temp_low = 34;
+int temp_high = 40;
 
 void setup(void) 
 { 
@@ -31,13 +36,16 @@ void setup(void)
  
  //Initialise the lcd
  lcd.init(); //initialize the lcd
- //lcd.backlight();  //turn on lcd backlight
+ lcd.backlight();  //turn on lcd backlight
  lcd.clear();
  lcd.setCursor(0, 0);  //column_index, row_index
  lcd.print("Temp (degC)");
 
- //Setup LED pin
- pinMode(led_pin, OUTPUT);
+ //Setup LEDs 
+ pinMode(LED_BUILTIN, OUTPUT);
+ pinMode(g_led_pin, OUTPUT);  //green
+ pinMode(b_led_pin, OUTPUT);  //blue
+ pinMode(r_led_pin, OUTPUT);  //red
 } 
 
 void loop(void) 
@@ -57,9 +65,29 @@ void loop(void)
  lcd.setCursor(0,1);
  lcd.print(sensors.getTempCByIndex(0));
 
- //Blink LED
- digitalWrite(led_pin, HIGH);   // turn the LED on (HIGH is the voltage level)
+ //Set LED colur according to temperature
+ if(sensors.getTempCByIndex(0)<temp_low)
+ {
+  digitalWrite(b_led_pin, HIGH);
+  digitalWrite(g_led_pin, LOW);
+  digitalWrite(r_led_pin, LOW);
+ }
+ else if (sensors.getTempCByIndex(0)<temp_high)
+ {
+  digitalWrite(b_led_pin, LOW);
+  digitalWrite(g_led_pin, HIGH);
+  digitalWrite(r_led_pin, LOW);
+ }
+ else
+ {
+  digitalWrite(b_led_pin, LOW);
+  digitalWrite(g_led_pin, LOW);
+  digitalWrite(r_led_pin, HIGH);
+ }
+
+ //Blink builtin LED
+ digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
  delay(0.1*loop_period);                       // wait for a second
- digitalWrite(led_pin, LOW);    // turn the LED off by making the voltage LOW
+ digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
  delay(0.9*loop_period);  
 } 
