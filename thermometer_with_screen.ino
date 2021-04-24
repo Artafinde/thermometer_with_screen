@@ -19,19 +19,21 @@ DallasTemperature sensors(&oneWire);
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 
 //Other variables
-int loop_period = 2000;  //seconds
 int b_led_pin=3;
 int g_led_pin=6;
 int r_led_pin=5;
-int temp_low = 34;
-int temp_high = 40;
-int b_duty_cycle = 20;
-int g_duty_cycle = 100;
-int r_duty_cycle = 20;
+int temp_low = 35;
+int temp_high = 39;
+int b_duty_cycle = 255;
+int g_duty_cycle = 255;
+int r_duty_cycle = 255;
+int loop_period = 2000;  //milliseconds
+float b_flash_period = 400; //milliseconds
+float r_flash_period = 400; //milliseconds
+int i;  //FOR loop iterator
 
 void setup(void) 
 { 
- // start serial port 
  //Serial.begin(9600); 
  
  // Start up the sensor library 
@@ -80,26 +82,33 @@ void loop(void)
  //Set LED colur according to temperature
  if(sensors.getTempCByIndex(0)<temp_low)
  {
-  analogWrite(b_led_pin, b_duty_cycle);
   digitalWrite(g_led_pin, LOW);
   digitalWrite(r_led_pin, LOW);
+  for(i=0;i<(loop_period/b_flash_period);i++)
+  {
+    analogWrite(b_led_pin, b_duty_cycle);
+    delay(0.5*b_flash_period);
+    analogWrite(b_led_pin, 0);
+    delay(0.5*b_flash_period);
+  }
  }
  else if (sensors.getTempCByIndex(0)<temp_high)
  {
   digitalWrite(b_led_pin, LOW);
-  analogWrite(g_led_pin, g_duty_cycle);
   digitalWrite(r_led_pin, LOW);
+  analogWrite(g_led_pin, g_duty_cycle);
+  delay(loop_period);
  }
  else
  {
   digitalWrite(b_led_pin, LOW);
   digitalWrite(g_led_pin, LOW);
-  analogWrite(r_led_pin, r_duty_cycle);
+  for(i=0;i<(loop_period/r_flash_period);i++)
+  {
+    analogWrite(r_led_pin, r_duty_cycle);
+    delay(0.5*r_flash_period);
+    analogWrite(r_led_pin, 0);
+    delay(0.5*r_flash_period);
+  }
  }
-
- //Blink builtin LED
- digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
- delay(0.1*loop_period);                       // wait for a second
- digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
- delay(0.9*loop_period);  
 } 
